@@ -6,6 +6,8 @@ include("../../extra/basics.jl")
 include("../../extra/plotting.jl")
 include("data_extraction.jl")
 
+to_path(file) = relpath(normpath(@__DIR__, "..", file), pwd())
+
 include("SolitaryWave.jl")
 include("SimpleBeach.jl")
 include("ConicalIsland.jl")

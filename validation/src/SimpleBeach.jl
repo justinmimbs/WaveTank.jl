@@ -5,10 +5,9 @@ using GLMakie
 using Printf: @sprintf
 using Neowave: g, Grid, Model, run!, load, maptime
 
+import ..to_path
 import ..sech2wave, ..particle_velocity, ..piecewiselinear
 import ..plot_surface
-
-to_path(file) = relpath(normpath(@__DIR__, "..", file), pwd())
 
 function model(ah=0.3) # ah = amplitude / depth ratio
     h = 1.0

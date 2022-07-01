@@ -4,10 +4,9 @@ using GLMakie
 using Printf: @sprintf
 using Neowave: g, Grid, Model, run!, load
 
+import ..to_path
 import ..sech2wave, ..particle_velocity
 import ..plot_surface
-
-to_path(file) = relpath(normpath(@__DIR__, "..", file), pwd())
 
 function solitary_wave(ah; h=inv(ah), lx0=0.0)
     a = ah * h

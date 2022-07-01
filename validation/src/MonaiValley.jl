@@ -5,10 +5,9 @@ using Interpolations: interpolate, scale, BSpline, Cubic, Flat, OnCell
 using GLMakie
 using Neowave: g, Grid, Model, run!, load
 
+import ..to_path
 import ..gridindex, ..sample
 import ..plot_surface
-
-to_path(file) = relpath(normpath(@__DIR__, "..", file), pwd())
 
 function model()
     csv = CSV.File(to_path("in/monaivalley_bathymetry.csv"); types=Float64)

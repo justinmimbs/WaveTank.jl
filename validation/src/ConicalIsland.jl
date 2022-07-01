@@ -5,11 +5,10 @@ using GLMakie
 using Printf: @sprintf
 using Neowave: g, Grid, Model, run!, load, foldtime
 
+import ..to_path
 import ..sech2wave, ..particle_velocity, ..truncatedcone
 import ..gridindex, ..sample
 import ..plot_surface
-
-to_path(file) = relpath(normpath(@__DIR__, "..", file), pwd())
 
 function model(res=1)
     h = 0.32
