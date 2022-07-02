@@ -6,7 +6,7 @@ using Neowave: g, Grid, Model, run!, Results, load
 
 import ..to_path
 import ..sech2wave, ..particle_velocity
-import ..plot_surface, ..plot_conservation!
+import ..plot_scene, ..plot_conservation!
 
 function solitary_wave(ah; h=inv(ah), lx0=0.0)
     a = ah * h
@@ -110,9 +110,9 @@ function plot_conservation(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
     fig
 end
 
-function plot_result(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall, t=0)
+function plot_results(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
     filename = to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2")
-    plot_surface(load(filename, t); zscale=16.0, dz=1.0)
+    plot_scene(Results(filename), "Solitary wave"; zscale=20.0)
 end
 
 end # module

@@ -1,4 +1,5 @@
 using Printf
+using Neowave: Results
 
 theme = let
     axis = (
@@ -6,7 +7,8 @@ theme = let
         titlealign=:left,
     )
     Theme(
-        resolution=(1200, 900),
+        resolution=(1100, 900),
+        figure_padding=(20, 20, 20, 20),
         fontsize=18,
         Axis=axis,
         Axis3=axis,
@@ -24,8 +26,13 @@ theme = let
     )
 end
 
-function header!(gp, text)
-    Label(gp, text; textsize=24, padding=(0, 0, 10, 10), halign=:left, tellwidth=false)
+function header!(gp::GridPosition, text)
+    Label(gp, text; textsize=24, padding=(0, 0, 10, 10), halign=:left,
+        tellwidth=false, tellheight=false
+    )
+end
+function header!(fig::Figure, text)
+    header!(fig[1, 1, TopLeft()], text)
 end
 
 function plot_conservation!(gp, iter)
@@ -44,7 +51,7 @@ function axis3(gp, m; zscale=5.0, zmax=nothing)
     h = m.h
     (; xf, yf) = m.grid
     zmin = -maximum(h)
-    zmax = @something zmax max(-0.3zmin, -minimum(h))
+    zmax = @something zmax max(-0.3zmin, -1.1minimum(h))
     Axis3(gp;
         aspect=(xf[end] - xf[1], yf[end] - yf[1], zscale * (zmax - zmin)),
         limits=(xf[1], xf[end], yf[1], yf[end], zmin, zmax),
@@ -106,11 +113,23 @@ function plot_surface!(ax, m::Observable)
     )
 end
 
-function plot_surface(m; zscale=5.0, zmax=nothing, dz=0.0)
+function plot_scene(m, title=""; zscale=5.0, zmax=nothing, dz=0.0)
     fig = Figure()
+    header!(fig, title)
     ax = axis3(fig[1, 1], m; zscale, zmax)
     plot_bathymetry!(ax, m; dz)
     sp = plot_surface!(ax, m)
     Colorbar(fig[1, 2], sp)
     fig
+end
+function plot_scene(res::Results, title=""; zscale=5.0, zmax=nothing, dz=0.0)
+    obs = Observable(first(res))
+    fig = Figure()
+    header!(fig, title)
+    ax = axis3(fig[1, 1], obs[]; zscale, zmax)
+    plot_bathymetry!(ax, obs[]; dz)
+    sp = plot_surface!(ax, obs)
+    Colorbar(fig[1, 2], sp)
+    display(fig)
+    fig, obs, res
 end

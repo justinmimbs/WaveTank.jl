@@ -3,12 +3,12 @@ module ConicalIsland
 using CSV
 using GLMakie
 using Printf: @sprintf
-using Neowave: g, Grid, Model, run!, load, foldtime
+using Neowave: g, Grid, Model, run!, Results, load, foldtime
 
 import ..to_path
 import ..sech2wave, ..particle_velocity, ..truncatedcone
 import ..gridindex, ..sample
-import ..plot_surface
+import ..plot_scene
 
 function model(res=1)
     h = 0.32
@@ -132,9 +132,9 @@ function plot_runup(name="conicalisland")
     fig
 end
 
-function plot_result(name="conicalisland"; t=0)
+function plot_results(name="conicalisland")
     filename = to_path("out/$name.jld2")
-    plot_surface(load(filename, t); zscale=8.0, dz=0.05)
+    plot_scene(Results(filename), "Conical island"; zscale=8.0, dz=0.05)
 end
 
 end # module

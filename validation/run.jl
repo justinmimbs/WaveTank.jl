@@ -6,7 +6,6 @@ using GLMakie
 
 using Neowave: Results
 using Validation
-using Validation: axis3, plot_bathymetry!, plot_surface!
 
 function run()
     SolitaryWave.run()
@@ -14,6 +13,14 @@ function run()
     SimpleBeach.run(0.3)
     ConicalIsland.run()
     MonaiValley.run()
+end
+
+function animate(obs::Observable, res::Results, seconds=Inf)
+    for m in res
+        if seconds <= m.dt * m.t; break; end
+        obs[] = m
+        sleep(0.016)
+    end
 end
 
 # set_theme!(Validation.theme)
@@ -29,21 +36,5 @@ end
 
 # MonaiValley.plot_setup()
 # MonaiValley.plot_timeseries()
-
-# function plot_obs(filename)
-#     r = Results(filename)
-#     m = Observable(first(r))
-#     fig = Figure()
-#     ax = axis3(fig[1, 1], m[]) # zscale, zmax
-#     plot_bathymetry!(ax, m[]) # dz
-#     sp = plot_surface!(ax, m)
-#     Colorbar(fig[1, 2], sp)
-#     display(fig)
-#     fig, m, r
-# end
-
-# f1, m1, r1 = plot_obs("out/monaivalley.jld2");
-# for m in r1
-#     m1[] = m
-#     sleep(0.016)
-# end
+# _, obs, res = MonaiValley.plot_results();
+# animate(obs, res, 22.5)

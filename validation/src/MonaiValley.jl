@@ -3,11 +3,11 @@ module MonaiValley
 using CSV
 using Interpolations: interpolate, scale, BSpline, Cubic, Flat, OnCell
 using GLMakie
-using Neowave: g, Grid, Model, run!, load
+using Neowave: g, Grid, Model, run!, Results
 
 import ..to_path
 import ..gridindex, ..sample
-import ..plot_surface
+import ..plot_scene
 
 function model()
     csv = CSV.File(to_path("in/monaivalley_bathymetry.csv"); types=Float64)
@@ -104,7 +104,7 @@ function plot_timeseries(name="monaivalley")
     n = length(positions)
     # simulation data
     filename = to_path("out/$name.jld2")
-    (; grid) = load(filename, 0)
+    (; grid) = first(Results(filename))
     eta_sim = sample(filename, gridindex.(Ref(grid), positions))
     t = length(eta_sim[1])
     # lab data
@@ -129,9 +129,9 @@ function plot_timeseries(name="monaivalley")
     fig
 end
 
-function plot_result(name="monaivalley"; t=0)
+function plot_results(name="monaivalley")
     filename = to_path("out/$name.jld2")
-    plot_surface(load(filename, t); zmax=0.135, dz=0.01)
+    plot_scene(Results(filename), "Monai Valley"; zscale=5.0, dz=0.01)
 end
 
 end # module

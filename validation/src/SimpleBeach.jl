@@ -7,7 +7,7 @@ using Neowave: g, Grid, Model, run!, Results, load
 
 import ..to_path
 import ..sech2wave, ..particle_velocity, ..piecewiselinear
-import ..plot_surface, ..plot_conservation!
+import ..plot_scene, ..plot_conservation!
 
 function model(ah=0.3) # ah = amplitude / depth ratio
     h = 1.0
@@ -75,9 +75,9 @@ function plot_conservation(name="simplebeach"; ah=0.3)
     fig
 end
 
-function plot_result(name="simplebeach"; ah=0.3, t=0)
+function plot_results(name="simplebeach"; ah=0.3)
     filename = to_path("out/$(name)_$ah.jld2")
-    plot_surface(load(filename, t); zscale=2.0, zmax=1.0, dz=0.1)
+    plot_scene(Results(filename), "Simple beach"; zscale=5.0)
 end
 
 end # module
