@@ -16,17 +16,31 @@ function run()
     MonaiValley.run()
 end
 
-function plot_obs(filename)
-    r = Results(filename)
-    m = Observable(first(r))
-    fig = Figure(resolution=(1000, 700))
-    ax = axis3(fig[1, 1], m[]) # zscale, zmax
-    plot_bathymetry!(ax, m[]) # dz
-    sp = plot_surface!(ax, m)
-    Colorbar(fig[1, 2], sp)
-    display(fig)
-    fig, m, r
-end
+# set_theme!(Validation.theme)
+
+# SolitaryWave.plot_comparison()
+# SolitaryWave.plot_conservation()
+
+# SimpleBeach.plot_profiles()
+# SimpleBeach.plot_conservation()
+
+# ConicalIsland.plot_timeseries()
+# ConicalIsland.plot_runup()
+
+# MonaiValley.plot_setup()
+# MonaiValley.plot_timeseries()
+
+# function plot_obs(filename)
+#     r = Results(filename)
+#     m = Observable(first(r))
+#     fig = Figure()
+#     ax = axis3(fig[1, 1], m[]) # zscale, zmax
+#     plot_bathymetry!(ax, m[]) # dz
+#     sp = plot_surface!(ax, m)
+#     Colorbar(fig[1, 2], sp)
+#     display(fig)
+#     fig, m, r
+# end
 
 # f1, m1, r1 = plot_obs("out/monaivalley.jld2");
 # for m in r1

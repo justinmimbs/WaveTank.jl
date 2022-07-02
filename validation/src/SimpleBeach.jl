@@ -3,11 +3,11 @@ module SimpleBeach
 using CSV
 using GLMakie
 using Printf: @sprintf
-using Neowave: g, Grid, Model, run!, load, maptime
+using Neowave: g, Grid, Model, run!, Results, load
 
 import ..to_path
 import ..sech2wave, ..particle_velocity, ..piecewiselinear
-import ..plot_surface
+import ..plot_surface, ..plot_conservation!
 
 function model(ah=0.3) # ah = amplitude / depth ratio
     h = 1.0
@@ -51,21 +51,6 @@ function run(name="simplebeach"; ah=0.3)
     end
 end
 
-function plot_conservation(name="simplebeach"; ah=0.3)
-    filename = to_path("out/$(name)_$ah.jld2")
-    t_eta = maptime(m -> (m.t, sum(m.eta)), filename)
-    t = first.(t_eta)
-    eta0 = t_eta[1][2]
-    eta = [ (e / eta0 - 1.0) * 100 for (_, e) in t_eta ]
-    #
-    title = @sprintf("change: %.03f %%", eta[end])
-    fig = Figure()
-    ax = Axis(fig[1, 1]; title, xlabel="timestep", ylabel="% change")
-    ylims!(ax, -0.5, 0.5)
-    lines!(t, eta; color=:black)
-    fig
-end
-
 function plot_profiles(name="simplebeach"; ah=0.3)
     csv = CSV.File(to_path("in/simplebeach_profiles_$ah.csv"), types=Float64)
     ts = ah == 0.3 ? (15:5:30) : (30:10:70)
@@ -80,6 +65,13 @@ function plot_profiles(name="simplebeach"; ah=0.3)
         lines!(ax, -reverse(grid.xc), reverse(eta[:, j]); color=:dodgerblue, linewidth=2)
         lines!(ax, -reverse(grid.xc), -reverse(h[:, j]); color=:gray, linewidth=2)
     end
+    fig
+end
+
+function plot_conservation(name="simplebeach"; ah=0.3)
+    filename = to_path("out/$(name)_$ah.jld2")
+    fig = Figure()
+    plot_conservation!(fig[1, 1], Results(filename))
     fig
 end
 

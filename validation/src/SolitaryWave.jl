@@ -2,11 +2,11 @@ module SolitaryWave
 
 using GLMakie
 using Printf: @sprintf
-using Neowave: g, Grid, Model, run!, load
+using Neowave: g, Grid, Model, run!, Results, load
 
 import ..to_path
 import ..sech2wave, ..particle_velocity
-import ..plot_surface
+import ..plot_surface, ..plot_conservation!
 
 function solitary_wave(ah; h=inv(ah), lx0=0.0)
     a = ah * h
@@ -38,12 +38,6 @@ function model(ah, gen, bcx)
     end
 end
 
-function runall(name="solitarywave")
-    for gen in [:initial, :wavemaker, :waveinput], bcx in [:wall, :open]
-        run(name; ah=0.1, gen, bcx)
-    end
-end
-
 function run(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
     outfile = to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2")
     if isfile(outfile)
@@ -60,23 +54,10 @@ function run(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
     end
 end
 
-function plot_comparisons(name="solitarywave";
-        ah=[0.1],
-        gen=[:initial, :wavemaker, :waveinput],
-        bcx=[:wall, :open]
-    )
-    args = [ (; ah, gen, bcx) for ah in ah for gen in gen for bcx in bcx ]
-    fig = Figure(resolution=(1000, 240 * length(args)))
-    for i in 1:length(args)
-        plot_comparison!(fig[i, 1], name; args[i]...)
+function runall(name="solitarywave")
+    for gen in [:initial, :wavemaker, :waveinput], bcx in [:wall, :open]
+        run(name; ah=0.1, gen, bcx)
     end
-    fig
-end
-
-function plot_comparison(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
-    fig = Figure(resolution=(1000, 300))
-    plot_comparison!(fig[1, 1], name; ah, gen, bcx)
-    fig
 end
 
 function plot_comparison!(gp, name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
@@ -101,6 +82,32 @@ function plot_comparison!(gp, name="solitarywave"; ah=0.1, gen=:initial, bcx=:wa
     end
     # TODO add legend; add time labels
     ax
+end
+
+function plot_comparison(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
+    fig = Figure(resolution=(1000, 300))
+    plot_comparison!(fig[1, 1], name; ah, gen, bcx)
+    fig
+end
+
+function plot_comparisons(name="solitarywave";
+    ah=[0.1],
+    gen=[:initial, :wavemaker, :waveinput],
+    bcx=[:wall, :open],
+)
+    args = [ (; ah, gen, bcx) for ah in ah for gen in gen for bcx in bcx ]
+    fig = Figure(resolution=(1000, 240 * length(args)))
+    for i in 1:length(args)
+        plot_comparison!(fig[i, 1], name; args[i]...)
+    end
+    fig
+end
+
+function plot_conservation(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
+    filename = to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2")
+    fig = Figure()
+    plot_conservation!(fig[1, 1], Results(filename))
+    fig
 end
 
 function plot_result(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall, t=0)

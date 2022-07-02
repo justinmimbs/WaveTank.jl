@@ -1,3 +1,45 @@
+using Printf
+
+theme = let
+    axis = (
+        titlefont="TeX Gyre Heros",
+        titlealign=:left,
+    )
+    Theme(
+        resolution=(1200, 900),
+        fontsize=18,
+        Axis=axis,
+        Axis3=axis,
+        Lines=(
+            linewidth=2,
+            color=:black,
+        ),
+        Colorbar=(
+            spinewidth=0,
+            ticklabelpad=5,
+        ),
+        Legend=(
+            framecolor=:gray70,
+        ),
+    )
+end
+
+function header!(gp, text)
+    Label(gp, text; textsize=24, padding=(0, 0, 10, 10), halign=:left, tellwidth=false)
+end
+
+function plot_conservation!(gp, iter)
+    t_eta = [ m.t => sum(m.eta) for m in iter ]
+    _, eta0 = t_eta[1]
+    t = first.(t_eta)
+    change = [ (eta / eta0 - 1.0) * 100 for (_, eta) in t_eta ]
+    title = @sprintf("change in fluid: %.05f %%", change[end])
+    ax = Axis(gp; title, xlabel="timestep", ylabel="change %")
+    ylims!(ax, -0.5, 0.5)
+    xlims!(ax, extrema(t))
+    lines!(ax, t, change; color=:black)
+end
+
 function axis3(gp, m; zscale=5.0, zmax=nothing)
     h = m.h
     (; xf, yf) = m.grid
@@ -20,12 +62,17 @@ function plot_bathymetry!(ax, m; dz=0.0)
     zmin, zmax = extrema(b)
     dz = 0.0 < dz ? dz : zmax == zmin ? 1.0 : (zmax - zmin) / 21
     levels = vcat(-dz:-dz:zmin, dz:dz:zmax)
-    lines!(ax, xc, fill(yc[1], length(xc)), b[:, 1], color=:gray, overdraw=true)
-    lines!(ax, xc, fill(yc[end], length(xc)), b[:, end], color=:gray, overdraw=true)
-    lines!(ax, fill(xc[1], length(yc)), yc, b[1, :], color=:gray, overdraw=true)
-    lines!(ax, fill(xc[end], length(yc)), yc, b[end, :], color=:gray, overdraw=true)
     contour3d!(ax, xc, yc, b; levels, color=:gray, overdraw=true)
     contour3d!(ax, xc, yc, b; levels=[0.0], color=:black, overdraw=true)
+    sideprofiles = [
+        (xc, fill(yc[1], length(xc)), b[:, 1]),
+        (xc, fill(yc[end], length(xc)), b[:, end]),
+        (fill(xc[1], length(yc)), yc, b[1, :]),
+        (fill(xc[end], length(yc)), yc, b[end, :]),
+    ]
+    for (x, y, z) in sideprofiles
+        lines!(ax, x, y, z; color=:gray, linewidth=1, overdraw=true)
+    end
     ax
 end
 
@@ -60,7 +107,7 @@ function plot_surface!(ax, m::Observable)
 end
 
 function plot_surface(m; zscale=5.0, zmax=nothing, dz=0.0)
-    fig = Figure(resolution=(1000, 700))
+    fig = Figure()
     ax = axis3(fig[1, 1], m; zscale, zmax)
     plot_bathymetry!(ax, m; dz)
     sp = plot_surface!(ax, m)
