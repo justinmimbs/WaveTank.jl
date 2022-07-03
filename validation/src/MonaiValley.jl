@@ -7,7 +7,7 @@ using Neowave: g, Grid, Model, run!, Results
 
 import ..to_path
 import ..gridindex, ..sample
-import ..plot_scene
+import ..plot_scene, ..header!
 
 function model()
     csv = CSV.File(to_path("in/monaivalley_bathymetry.csv"); types=Float64)
@@ -66,10 +66,11 @@ function plot_setup()
     dt = 0.1
     wave = inputwave(; dt)
 
-    fig = Figure(resolution=(800, 800))
+    fig = Figure()
+    header!(fig[1, 1], "Monai Valley, setup")
 
     # bathymetry
-    ax = Axis(fig[1, 1]; title="bathymetry", xlabel="x (m)", ylabel="y (m)",
+    ax = Axis(fig[2, 1]; title="bathymetry", xlabel="x (m)", ylabel="y (m)",
         aspect=DataAspect(),
         limits=(grid.xf[1], grid.xf[end], grid.yf[1], grid.yf[end]),
         xticks=0:5,
@@ -88,13 +89,13 @@ function plot_setup()
     axislegend(ax; position=(:right, :bottom))
 
     # wave input
-    axw = Axis(fig[2, 1]; title="wave input", xlabel="time (s)", ylabel="surface elevation (cm)",
-        limits=(0, 25, -2, 2)
+    axw = Axis(fig[3, 1]; title="wave input", xlabel="time (s)", ylabel="surface elevation (cm)",
+        limits=(0, 25, -2, 2),
     )
-    hidespines!(axw)
+    # hidespines!(axw)
     s = 0.0:dt:((length(wave) - 1) * dt)
     lines!(axw, s, wave .* 100; color=:black)
-    rowsize!(fig.layout, 2, Auto(0.3))
+    rowsize!(fig.layout, 3, Auto(0.3))
 
     fig
 end
@@ -112,14 +113,15 @@ function plot_timeseries(name="monaivalley")
     seconds = csv.s[1:t]
     eta_lab = [ c.column[1:t] for c in csv.columns[1 .+ (1:n)] ]
 
-    fig = Figure(resolution=(800, 800))
+    fig = Figure()
+    header!(fig[1, 1], "Monai Valley, timeseries")
 
     limits = (seconds[1], seconds[end], -1.2, 5.2)
     for i in 1:n
         lab, sim = eta_lab[i], eta_sim[i]
-        ax = Axis(fig[i, 1]; title="gauge $i", limits, xlabel="t (s)", ylabel="eta (cm)")
-        hidespines!(ax)
-        lines!(ax, seconds, lab; color=:gray, label="lab")
+        ax = Axis(fig[i + 1, 1]; title="gauge $i", limits, xlabel="t (s)", ylabel="eta (cm)")
+        # hidespines!(ax)
+        lines!(ax, seconds, lab; color=:black, label="lab")
         lines!(ax, seconds, sim .* 100; color=:dodgerblue, label="model")
         if i == 1
             axislegend(ax; position=:lt)

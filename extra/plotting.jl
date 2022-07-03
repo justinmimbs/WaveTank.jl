@@ -10,7 +10,12 @@ theme = let
         resolution=(1100, 900),
         figure_padding=(20, 20, 20, 20),
         fontsize=18,
-        Axis=axis,
+        Axis=(; axis...,
+            leftspinecolor=:gray,
+            rightspinecolor=:gray,
+            bottomspinecolor=:gray,
+            topspinecolor=:gray,
+        ),
         Axis3=axis,
         Lines=(
             linewidth=2,
@@ -21,14 +26,14 @@ theme = let
             ticklabelpad=5,
         ),
         Legend=(
-            framecolor=:gray70,
+            framecolor=:gray,
         ),
     )
 end
 
 function header!(gp::GridPosition, text)
-    Label(gp, text; textsize=24, padding=(0, 0, 10, 10), halign=:left,
-        tellwidth=false, tellheight=false
+    Label(gp, text; textsize=24, padding=(0, 0, 0, 0), halign=:left,
+        tellwidth=false, tellheight=true
     )
 end
 function header!(fig::Figure, text)

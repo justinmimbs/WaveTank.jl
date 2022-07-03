@@ -7,7 +7,7 @@ using Neowave: g, Grid, Model, run!, Results, load
 
 import ..to_path
 import ..sech2wave, ..particle_velocity, ..piecewiselinear
-import ..plot_scene, ..plot_conservation!
+import ..plot_scene, ..plot_conservation!, ..header!
 
 function model(ah=0.3) # ah = amplitude / depth ratio
     h = 1.0
@@ -54,16 +54,17 @@ end
 function plot_profiles(name="simplebeach"; ah=0.3)
     csv = CSV.File(to_path("in/simplebeach_profiles_$ah.csv"), types=Float64)
     ts = ah == 0.3 ? (15:5:30) : (30:10:70)
-    limits = ah == 0.3 ? (-8, 20, -0.05, 0.45) : (-2, 20, -0.03, 0.08)
+    limits = ah == 0.3 ? (-20, 8, -0.05, 0.45) : (-20, 2, -0.03, 0.08)
 
-    fig = Figure(; resolution=(800, 240 * length(ts)))
+    fig = Figure()
+    header!(fig[1, 1], "Simple beach, profiles")
     for (i, t) in enumerate(ts)
         (; grid, h, eta) = load(to_path("out/$(name)_$ah.jld2"), 32 * t - 20) # s = 0.32 * t - 0.2
         j = length(grid.yc) ÷ 2
-        ax = Axis(fig[i, 1]; title="t = $t", limits)
-        scatter!(ax, csv["x_t$t"], csv["eta_t$t"]; color=:black, markersize=3)
-        lines!(ax, -reverse(grid.xc), reverse(eta[:, j]); color=:dodgerblue, linewidth=2)
-        lines!(ax, -reverse(grid.xc), -reverse(h[:, j]); color=:gray, linewidth=2)
+        ax = Axis(fig[1 + i, 1]; title="t = $t", limits)
+        scatter!(ax, -csv["x_t$t"], csv["eta_t$t"]; color=:black, markersize=4)
+        lines!(ax, grid.xc, eta[:, j]; color=:dodgerblue, linewidth=2)
+        lines!(ax, grid.xc, -h[:, j]; color=:gray, linewidth=2)
     end
     fig
 end
@@ -71,7 +72,8 @@ end
 function plot_conservation(name="simplebeach"; ah=0.3)
     filename = to_path("out/$(name)_$ah.jld2")
     fig = Figure()
-    plot_conservation!(fig[1, 1], Results(filename))
+    header!(fig[1, 1], "Simple beach, mass conservation")
+    plot_conservation!(fig[2, 1], Results(filename))
     fig
 end
 

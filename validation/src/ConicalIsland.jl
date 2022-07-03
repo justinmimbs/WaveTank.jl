@@ -8,7 +8,7 @@ using Neowave: g, Grid, Model, run!, Results, load, foldtime
 import ..to_path
 import ..sech2wave, ..particle_velocity, ..truncatedcone
 import ..gridindex, ..sample
-import ..plot_scene
+import ..plot_scene, ..header!
 
 function model(res=1)
     h = 0.32
@@ -83,10 +83,13 @@ function plot_timeseries(name="conicalisland")
     duration = 15.0 # s
     t1, tn = round.(Int, (timeshift, timeshift + duration) .* 25) .+ 1 # 25 hz
     r = t1:tn
-    fig = Figure(resolution=(800, length(gauge_ids) * 240))
+    fig = Figure()
+    header!(fig[1, 1], "Conical island, timeseries")
+    limits = (s[r][1], s[r][end], -0.07, 0.12)
+    rows = cld(length(gauge_ids), 2)
     for (i, (g, a, b)) in enumerate(zip(gauge_ids, lab, sim))
-        ax = Axis(fig[i, 1]; title="gauge $g", limits=(s[r][1], s[r][end], -0.07, 0.12))
-        lines!(ax, s[r], a[r]; color=:gray, label="lab")
+        ax = Axis(fig[mod1(i, rows) + 1, cld(i, rows)]; title="gauge $g", limits)
+        lines!(ax, s[r], a[r]; color=:black, label="lab")
         lines!(ax, s[r], b[r .- (t1 - 1)]; color=:dodgerblue, label="model")
     end
     fig
@@ -118,12 +121,13 @@ function plot_runup(name="conicalisland")
     runup = [ frompolar(r, t) .+ center for (r, t) in zip(runup, rad .- 0.5pi) ]
 
     # plot
-    fig = Figure(resolution=(600, 600))
-    ax = Axis(fig[1, 1]; title="maximum run-up height",
+    fig = Figure()
+    header!(fig[1, 1], "Conical island, maximum run-up height")
+    ax = Axis(fig[2, 1]; xlabel="x (m)", ylabel="y (m)",
         aspect=DataAspect(),
-        limits=(10.5, 15.5, 12.5, 17.5),
-        xticks=11:2:15,
-        yticks=13:2:17
+        limits=(8.5, 17.5, 11.5, 18.5),
+        xticks=9:17,
+        yticks=12:18
     )
     lines!(ax, circle(center, 1.1); color=:gray70) # cone top
     lines!(ax, circle(center, waterline); color=:gray70) # waterline
