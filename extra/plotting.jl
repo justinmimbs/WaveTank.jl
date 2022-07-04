@@ -118,8 +118,10 @@ function plot_surface!(ax, m::Observable)
     )
 end
 
-function plot_scene(m, title=""; zscale=5.0, zmax=nothing, dz=0.0)
-    fig = Figure()
+function plot_scene(m, title="";
+    zscale=5.0, zmax=nothing, dz=0.0, resolution=theme.resolution,
+)
+    fig = Figure(; resolution)
     header!(fig, title)
     ax = axis3(fig[1, 1], m; zscale, zmax)
     plot_bathymetry!(ax, m; dz)
@@ -127,9 +129,11 @@ function plot_scene(m, title=""; zscale=5.0, zmax=nothing, dz=0.0)
     Colorbar(fig[1, 2], sp)
     fig
 end
-function plot_scene(res::Results, title=""; zscale=5.0, zmax=nothing, dz=0.0)
+function plot_scene(res::Results, title="";
+    zscale=5.0, zmax=nothing, dz=0.0, resolution=theme.resolution,
+)
     obs = Observable(first(res))
-    fig = Figure()
+    fig = Figure(; resolution)
     header!(fig, title)
     ax = axis3(fig[1, 1], obs[]; zscale, zmax)
     plot_bathymetry!(ax, obs[]; dz)
@@ -137,4 +141,12 @@ function plot_scene(res::Results, title=""; zscale=5.0, zmax=nothing, dz=0.0)
     Colorbar(fig[1, 2], sp)
     display(fig)
     fig, obs, res
+end
+
+function animate(obs::Observable, res::Results, seconds=Inf)
+    for m in res
+        if seconds <= m.dt * m.t; break; end
+        obs[] = m
+        sleep(0.016)
+    end
 end

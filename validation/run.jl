@@ -5,7 +5,7 @@ cd(@__DIR__)
 using GLMakie
 
 using Neowave: Results
-using Validation
+using Validation: Validation, animate
 
 function run()
     SolitaryWave.run()
@@ -13,14 +13,6 @@ function run()
     SimpleBeach.run(0.3)
     ConicalIsland.run()
     MonaiValley.run()
-end
-
-function animate(obs::Observable, res::Results, seconds=Inf)
-    for m in res
-        if seconds <= m.dt * m.t; break; end
-        obs[] = m
-        sleep(0.016)
-    end
 end
 
 # set_theme!(Validation.theme)
