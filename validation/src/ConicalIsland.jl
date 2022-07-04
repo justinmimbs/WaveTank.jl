@@ -89,8 +89,9 @@ function plot_timeseries(name="conicalisland")
     rows = cld(length(gauge_ids), 2)
     for (i, (g, a, b)) in enumerate(zip(gauge_ids, lab, sim))
         ax = Axis(fig[mod1(i, rows) + 1, cld(i, rows)]; title="gauge $g", limits)
-        lines!(ax, s[r], a[r]; color=:black, label="lab")
-        lines!(ax, s[r], b[r .- (t1 - 1)]; color=:dodgerblue, label="model")
+        lines!(ax, s[r], a[r]; color=:black, label="laboratory")
+        lines!(ax, s[r], b[r .- (t1 - 1)]; color=:dodgerblue, label="model", linewidth=3)
+        if i == rows + 1; axislegend(ax) end
     end
     fig
 end
@@ -131,8 +132,11 @@ function plot_runup(name="conicalisland")
     )
     lines!(ax, circle(center, 1.1); color=:gray70) # cone top
     lines!(ax, circle(center, waterline); color=:gray70) # waterline
-    contour!(ax, grid.xc, grid.yc, (h .+ etamax); levels=[0.002], color=:dodgerblue, linewidth=2)
-    scatter!(ax, runup; color=:black, markersize=5)
+    scatter!(ax, runup; color=:black, markersize=6, label="laboratory")
+    contour!(ax, grid.xc, grid.yc, (h .+ etamax);
+        levels=[0.002], color=:dodgerblue, linewidth=3, label="model"
+    )
+    axislegend(ax)
     fig
 end
 

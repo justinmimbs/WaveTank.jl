@@ -119,13 +119,11 @@ function plot_timeseries(name="monaivalley")
     limits = (seconds[1], seconds[end], -1.2, 5.2)
     for i in 1:n
         lab, sim = eta_lab[i], eta_sim[i]
-        ax = Axis(fig[i + 1, 1]; title="gauge $i", limits, xlabel="t (s)", ylabel="eta (cm)")
+        ax = Axis(fig[i + 1, 1]; title="gauge $i", limits, xlabel="time (s)", ylabel="eta (cm)")
         # hidespines!(ax)
-        lines!(ax, seconds, lab; color=:black, label="lab")
-        lines!(ax, seconds, sim .* 100; color=:dodgerblue, label="model")
-        if i == 1
-            axislegend(ax; position=:lt)
-        end
+        lines!(ax, seconds, lab; color=:black, label="laboratory")
+        lines!(ax, seconds, sim .* 100; color=:dodgerblue, label="model", linewidth=3)
+        if i == 1; axislegend(ax) end
     end
 
     fig

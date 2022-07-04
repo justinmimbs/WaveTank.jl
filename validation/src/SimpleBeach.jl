@@ -62,9 +62,12 @@ function plot_profiles(name="simplebeach"; ah=0.3)
         (; grid, h, eta) = load(to_path("out/$(name)_$ah.jld2"), 32 * t - 20) # s = 0.32 * t - 0.2
         j = length(grid.yc) ÷ 2
         ax = Axis(fig[1 + i, 1]; title="t = $t", limits)
-        scatter!(ax, -csv["x_t$t"], csv["eta_t$t"]; color=:black, markersize=4)
-        lines!(ax, grid.xc, eta[:, j]; color=:dodgerblue, linewidth=2)
+        scatter!(ax, -csv["x_t$t"], csv["eta_t$t"]; color=:black, markersize=5, label="laboratory")
+        lines!(ax, grid.xc, eta[:, j]; color=:dodgerblue, linewidth=3, label="model")
         lines!(ax, grid.xc, -h[:, j]; color=:gray, linewidth=2)
+        if i == 1
+            axislegend(ax)
+        end
     end
     fig
 end
