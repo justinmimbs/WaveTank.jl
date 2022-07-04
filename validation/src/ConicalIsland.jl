@@ -63,6 +63,37 @@ function gauge_positions()
     Dict( g => (x=x + sx, y=y + sy, z=z) for (g, (x, y, z)) in gauge )
 end
 
+function plot_setup()
+    gauge_ids = [2, 6, 9, 16, 22]
+    gauge = gauge_positions()
+    positions = [ (gauge[g].x, gauge[g].y) for g in gauge_ids ]
+
+    (; grid, h) = model()
+
+    fig = Figure()
+    header!(fig[1, 1], "Conical island, setup")
+
+    # bathymetry
+    ax = Axis(fig[2, 1]; title="bathymetry", xlabel="x (m)", ylabel="y (m)",
+        aspect=DataAspect(),
+        limits=(grid.xf[1], grid.xf[end], grid.yf[1], grid.yf[end]),
+        xticks=vcat([0, grid.xf[end]], 3:5:grid.xf[end]),
+        yticks=0:5:grid.yf[end],
+    )
+    # terrain contours
+    l, u = extrema(h)
+    dz = (u - l) / 9
+    levels = vcat(-dz:-dz:l, dz:dz:u)
+    contour!(ax, grid.xc, grid.yc, h; levels, color=:gray)
+    # nominal waterline
+    contour!(ax, grid.xc, grid.yc, h; levels=[0.0], color=:black, linewidth=1.0)
+    # gauges
+    scatter!(ax, positions; color=:black, marker=:circle, markersize=12, label="gauges")
+    text!(ax, positions; text=string.(gauge_ids), align=(:right, :center), offset=(-6, 0))
+    axislegend(ax; position=(:right, :bottom))
+    fig
+end
+
 function plot_timeseries(name="conicalisland")
     gauge_ids = [2, 6, 9, 16, 22]
     gauge = gauge_positions()
