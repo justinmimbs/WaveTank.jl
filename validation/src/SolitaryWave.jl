@@ -1,117 +1,79 @@
+
 module SolitaryWave
 
 using GLMakie
 using Printf: @sprintf
-using WaveTank: g, Grid, Model, run!, Results, load
+using WaveTank: g, Grid, Model, run!, Results
 
 import ..to_path
-import ..sech2wave, ..particle_velocity
-import ..plot_scene, ..plot_conservation!
+import ..plot_scene, ..plot_conservation!, ..header!
 
-function solitary_wave(ah; h=inv(ah), lx0=0.0)
-    a = ah * h
-    k = sqrt(3a / 4h) / h
-    l = 8.3 / k
+function solitarywave(a=0.1; h=1.0)
     c = sqrt(g * (h + a))
-    eta = sech2wave(; a, x0=lx0 * l, k)
-    u = particle_velocity(eta, a, h)
-    (; a, h, k, l, c, eta, u)
+    k = sqrt(3a / 4h) / h
+    l = 2pi / k
+    eta(x) = a * sech(k * x)^2
+    u(x) = let e = eta(x); c * e / (h + e) end
+    (; a, h, c, k, l, eta, u)
 end
 
-function model(ah, gen, bcx)
-    wave = solitary_wave(ah)
-    if gen == :initial
-        grid = Grid((-1.0wave.l, 3.0wave.l), (0.0, wave.l), (400, 100))
-        eta(x, _) = wave.eta(x)
-        u(x, _) = wave.u(x)
-        m = Model(; grid, wave.h, bcx, eta, u)
-        m, [], []
-    else
-        grid = Grid((1.0wave.l, 5.0wave.l), (0.0, wave.l), (400, 100))
-        m = Model(; grid, wave.h, bcx)
-        xt = range(1.0wave.l, -1.0wave.l; step=-(wave.c * m.dt))
-        if gen == :wavemaker
-            m, map(wave.u, xt), []
-        else
-            m, [], map(wave.eta, xt)
-        end
-    end
+function model(wave, nx)
+    Model(;
+        grid=Grid(
+            (-1.5wave.l, 3.5wave.l), # x bounds
+            (0.0, wave.l),           # y bounds
+            (5nx, nx),               # grid resolution
+        ),
+        h=wave.h,                    # basin
+        eta=(x, _) -> wave.eta(x),   # surface elevation
+        u=(x, _) -> wave.u(x),       # particle velocity (x)
+    )
 end
 
-function run(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
-    outfile = to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2")
+function run(name="solitarywave"; ah=0.1, nx=100)
+    outfile = to_path("out/$(name)_$(ah).jld2")
     if isfile(outfile)
         @info "file exists: $(outfile)"
     else
-        wave = solitary_wave(ah)
+        wave = solitarywave(ah)
         period = wave.l / wave.c
-        seconds = period * (gen == :initial ? 2 : 4)
-        m, wavemaker, waveinput = model(ah, gen, bcx)
-        run!(m, outfile; seconds, frequency=inv(period), output=(; eta=:eta),
-            wavemaker, waveinput,
-        )
+        m = model(wave, nx)
+        run!(m, outfile; seconds=2period, frequency=30 / period, output=(; eta=:eta))
         @info "file created: $(outfile)"
     end
 end
 
-function runall(name="solitarywave")
-    for gen in [:initial, :wavemaker, :waveinput], bcx in [:wall, :open]
-        run(name; ah=0.1, gen, bcx)
+function plot_comparison(name="solitarywave"; ah=0.1)
+    filename = to_path("out/$(name)_$(ah).jld2")
+    wave = solitarywave(ah)
+    x = range(-1.5wave.l, 3.5wave.l; length=500)
+    fig = Figure(; resolution=(1100, 600))
+    header!(fig[1, 1], "Solitary wave")
+    ax = Axis(fig[2, 1]; xlabel="x", ylabel="eta",)
+    xlims!(ax, extrema(x))
+    # analytical solution
+    for i in 0:2
+        lines!(ax, x, x -> wave.eta(x - i * wave.l); color=:red, label="solution", linewidth=3)
     end
-end
-
-function plot_comparison!(gp, name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
-    filename = to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2")
-    (; dt, grid) = load(filename, 0)
-    wave = solitary_wave(ah)
-
-    # figure
-    title = @sprintf("solitary wave: h = %d m, %s, %s", wave.h, gen, bcx)
-    ax = Axis(gp; title, xlabel="x (m)", ylabel="elevation (m)")
-    xlims!(ax, grid.xf[1], grid.xf[end])
-    hidespines!(ax)
-
-    for t in load(filename)
-        # analytical solution
-        lx = t * dt * wave.c
-        lines!(ax, grid.xc, x -> wave.eta(x - lx); color=:gray)
-
-        # model solution
-        m = load(filename, round(Int, t))
-        lines!(ax, grid.xc, m.eta[:, end ÷ 2]; color=:dodgerblue)
+    # model solution
+    for (i, m) in enumerate(Results(filename))
+        if mod1(i, 30) != 1; continue; end
+        lines!(ax, m.grid.xc, m.eta[:, end ÷ 2]; color=:dodgerblue, label="model", linewidth=3)
     end
-    # TODO add legend; add time labels
-    ax
-end
-
-function plot_comparison(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
-    fig = Figure(resolution=(1000, 300))
-    plot_comparison!(fig[1, 1], name; ah, gen, bcx)
+    axislegend(ax; merge=true)
     fig
 end
 
-function plot_comparisons(name="solitarywave";
-    ah=[0.1],
-    gen=[:initial, :wavemaker, :waveinput],
-    bcx=[:wall, :open],
-)
-    args = [ (; ah, gen, bcx) for ah in ah for gen in gen for bcx in bcx ]
-    fig = Figure(resolution=(1000, 240 * length(args)))
-    for i in 1:length(args)
-        plot_comparison!(fig[i, 1], name; args[i]...)
-    end
-    fig
-end
-
-function plot_conservation(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
-    filename = to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2")
+function plot_conservation(name="solitarywave"; ah=0.1)
+    filename = to_path("out/$(name)_$ah.jld2")
     fig = Figure()
-    plot_conservation!(fig[1, 1], Results(filename))
+    header!(fig[1, 1], "Solitary wave, mass conservation")
+    plot_conservation!(fig[2, 1], Results(filename))
     fig
 end
 
-function plot_results(name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
-    filename = to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2")
+function plot_results(name="solitarywave"; ah=0.1)
+    filename = to_path("out/$(name)_$ah.jld2")
     plot_scene(Results(filename), "Solitary wave"; zscale=20.0)
 end
 

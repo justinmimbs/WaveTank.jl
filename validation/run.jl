@@ -20,6 +20,7 @@ set_theme!(Validation.theme)
 #=
 SolitaryWave.plot_comparison()
 SolitaryWave.plot_conservation()
+animate(SolitaryWave.plot_results())
 
 SimpleBeach.plot_profiles(ah=0.0185)
 SimpleBeach.plot_conservation(ah=0.0185)
