@@ -143,10 +143,15 @@ function plot_scene(res::Results, title="";
     fig, obs, res
 end
 
-function animate(obs::Observable, res::Results, seconds=Inf)
+function animate(fig::Figure, obs::Observable, res::Results, seconds=Inf)
     for m in res
-        if seconds <= m.dt * m.t; break; end
+        if seconds <= m.dt * m.t || !isopen(fig.scene)
+            break
+        end
         obs[] = m
         sleep(0.016)
     end
+end
+function animate((fig, obs, res)::Tuple{Figure, Observable, Results}, seconds=Inf)
+    animate(fig, obs, res, seconds)
 end

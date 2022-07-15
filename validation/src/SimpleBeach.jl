@@ -82,7 +82,7 @@ end
 
 function plot_results(name="simplebeach"; ah=0.3)
     filename = to_path("out/$(name)_$ah.jld2")
-    plot_scene(Results(filename), "Simple beach"; zscale=5.0)
+    plot_scene(Results(filename), "Simple beach"; zscale=ah == 0.3 ? 5.0 : 20.0)
 end
 
 end # module
