@@ -98,7 +98,7 @@ function run!(m, filepath; seconds, frequency, output,
             isempty(wavemaker) ? step!(m) : step!(m, 1; wavemaker, waveinput)
             # check for NaN, Inf
             if !all(isfinite, m.eta)
-                @warn "encountered non-finite float: stopping at t = $(m.t)"
+                @error "encountered non-finite float: stopping at t = $(m.t)"
                 return nothing
             end
             # aggregate
@@ -116,8 +116,8 @@ function run!(m, filepath; seconds, frequency, output,
                 write(file, "output/$key/$(m.t)", r)
             end
         end
-        # filename = basename(filepath)
-        # @info "run! saved output to '$filename' at t = $(m.t) (interval $i of $n)"
+        filename = basename(filepath)
+        @info "saved output to '$filename' at t = $(m.t) (interval $i of $n)"
     end
     m
 end
