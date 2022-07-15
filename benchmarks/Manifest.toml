@@ -371,7 +371,7 @@ git-tree-sha1 = "737a5957f387b17e74d4ad2f440eb330b39a62c5"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "1.0.0"
 
-[[deps.Neowave]]
+[[deps.WaveTank]]
 deps = ["ConjugateGradients", "ILUZero", "JLD2", "LinearAlgebra", "OffsetArrays", "SparseArrays"]
 path = ".."
 uuid = "65b678b4-48ab-4f29-8f9f-d377ea16399e"

@@ -1,5 +1,5 @@
 using LinearAlgebra: norm
-using Neowave: g
+using WaveTank: g
 
 function sech2wave(; a=1.0, x0=0.0, k=1)
     # a : amplitude, k : wavenumber

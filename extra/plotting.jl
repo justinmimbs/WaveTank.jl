@@ -1,5 +1,5 @@
 using Printf
-using Neowave: Results
+using WaveTank: Results
 
 theme = let
     axis = (

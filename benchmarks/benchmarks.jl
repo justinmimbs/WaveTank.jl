@@ -3,7 +3,7 @@ Pkg.activate(Base.current_project(@__DIR__))
 
 using BenchmarkTools
 using ProfileView
-using Neowave: g, Grid, Model, step!
+using WaveTank: g, Grid, Model, step!
 
 include("../extra/basics.jl")
 

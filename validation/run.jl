@@ -4,8 +4,8 @@ cd(@__DIR__)
 
 using GLMakie
 
-using Neowave: Results
-using Validation: Validation, animate
+using Validation
+using Validation: animate
 
 function run()
     SolitaryWave.run()

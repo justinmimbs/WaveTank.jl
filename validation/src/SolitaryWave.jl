@@ -2,7 +2,7 @@ module SolitaryWave
 
 using GLMakie
 using Printf: @sprintf
-using Neowave: g, Grid, Model, run!, Results, load
+using WaveTank: g, Grid, Model, run!, Results, load
 
 import ..to_path
 import ..sech2wave, ..particle_velocity

@@ -1,4 +1,4 @@
-module Neowave
+module WaveTank
 
 using JLD2: jldsave, jldopen
 
@@ -117,7 +117,7 @@ function run!(m, filepath; seconds, frequency, output,
             end
         end
         # filename = basename(filepath)
-        # @info "Neowave.run! saved output to '$filename' at t = $(m.t) (interval $i of $n)"
+        # @info "run! saved output to '$filename' at t = $(m.t) (interval $i of $n)"
     end
     m
 end

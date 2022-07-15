@@ -3,7 +3,7 @@ module ConicalIsland
 using CSV
 using GLMakie
 using Printf: @sprintf
-using Neowave: g, Grid, Model, run!, Results, load, foldtime
+using WaveTank: g, Grid, Model, run!, Results, load, foldtime
 
 import ..to_path
 import ..sech2wave, ..particle_velocity, ..truncatedcone
