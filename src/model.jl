@@ -86,6 +86,19 @@ mutable struct Model
         )
     end
 end
+
+function Base.show(io::IO, m::Model)
+    (; t, dt) = m
+    print(io, "WaveTank.Model @ t = $t ($(t * dt) s)")
+end
+function Base.show(io::IO, ::MIME"text/plain", m::Model)
+    (; t, dt, grid, bcx, bcy) = m
+    println(io, "WaveTank.Model @ t = $t ($(t * dt) s)")
+    println(io, "   grid = $grid")
+    println(io, "   boundaries = (x = $bcx, y = $bcy)")
+    print(  io, "   Δt = $dt, Δx = $(grid.dx), Δy = $(grid.dy)")
+end
+
 function step!(m::Model)::Model
     dt, dx, dy = m.dt, m.grid.dx, m.grid.dy
     nx, ny = m.grid.nx, m.grid.ny

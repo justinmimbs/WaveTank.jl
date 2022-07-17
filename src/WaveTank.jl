@@ -181,6 +181,16 @@ struct Results
     end
 end
 
+function Base.show(io::IO, r::Results)
+    print(io, "WaveTank.Results \"$(r.filepath)\"")
+end
+function Base.show(io::IO, ::MIME"text/plain", r::Results)
+    (; filepath, dt, ts, output) = r
+    println(io, "WaveTank.Results \"$filepath\"")
+    println(io, "   $(length(ts)) snapshots, to t = $(ts[end]) ($(ts[end] * dt) s)")
+    print(  io, "   output = [$(join(output, ", "))]")
+end
+
 # iterator interface to timeseries data
 
 Base.length(r::Results) = length(r.ts)

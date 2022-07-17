@@ -25,6 +25,20 @@ struct Grid
     end
 end
 
+function Base.show(io::IO, grid::Grid)
+    (; nx, ny, xf, yf) = grid
+    lx = xf[end] - xf[1]
+    ly = yf[end] - yf[1]
+    print(io, "Grid $nx × $ny ($lx m × $ly m)")
+end
+function Base.show(io::IO, ::MIME"text/plain", grid::Grid)
+    (; nx, ny, xf, yf, dx, dy) = grid
+    xl, xu = xf[1], xf[end]
+    yl, yu = yf[1], yf[end]
+    println(io, "Grid $nx × $ny ($(xu - xl) m × $(yu - yl) m)")
+    println(io, "    Δx = $dx m, bounds x = [$xl, $xu]")
+    print(  io, "    Δy = $dy m, bounds y = [$yl, $yu]")
+end
 
 # array utilities
 
