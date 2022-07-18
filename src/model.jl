@@ -75,7 +75,7 @@ mutable struct Model
         q = zeros(nx, ny)
         # dt (if not given, then set by Courant number)
         if !isa(dt, Number)
-            cg = sqrt(g * maximum(h + eta)) # group speed
+            cg = sqrt(g * maximum(h)) # group speed
             dt = courant * min(grid.dx, grid.dy) / cg
             dt = inv(ceil(inv(dt))) # ensure hz is an integer (i.e. dt = 1/{integer})
         end
@@ -89,14 +89,19 @@ end
 
 function Base.show(io::IO, m::Model)
     (; t, dt) = m
-    print(io, "WaveTank.Model @ t = $t ($(t * dt) s)")
+    @printf(io, "WaveTank.Model @ t = %d (%.3g s)", t, t * dt)
 end
 function Base.show(io::IO, ::MIME"text/plain", m::Model)
     (; t, dt, grid, bcx, bcy) = m
-    println(io, "WaveTank.Model @ t = $t ($(t * dt) s)")
-    println(io, "   grid = $grid")
-    println(io, "   boundaries = (x = $bcx, y = $bcy)")
-    print(  io, "   Δt = $dt, Δx = $(grid.dx), Δy = $(grid.dy)")
+    @printf(io, "WaveTank.Model @ t = %d (%.3g s)", t, t * dt)
+    @printf(io, "\n   grid = %s", grid)
+    @printf(io, "\n   boundaries = (x = %s, y = %s)", bcx, bcy)
+    @printf(io, "\n   Δt = %g, Δx = %g, Δy = %g (courant = %.3g)", dt, grid.dx, grid.dy, courant(m))
+end
+
+function courant(m)
+    cg = sqrt(g * maximum(m.h))
+    cg / m.grid.dx * m.dt
 end
 
 function step!(m::Model)::Model

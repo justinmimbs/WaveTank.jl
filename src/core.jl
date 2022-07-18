@@ -27,17 +27,15 @@ end
 
 function Base.show(io::IO, grid::Grid)
     (; nx, ny, xf, yf) = grid
-    lx = xf[end] - xf[1]
-    ly = yf[end] - yf[1]
-    print(io, "Grid $nx × $ny ($lx m × $ly m)")
+    @printf(io, "Grid %d × %d (%g m × %g m)", nx, ny, xf[end] - xf[1], yf[end] - yf[1])
 end
 function Base.show(io::IO, ::MIME"text/plain", grid::Grid)
     (; nx, ny, xf, yf, dx, dy) = grid
     xl, xu = xf[1], xf[end]
     yl, yu = yf[1], yf[end]
-    println(io, "Grid $nx × $ny ($(xu - xl) m × $(yu - yl) m)")
-    println(io, "    Δx = $dx m, bounds x = [$xl, $xu]")
-    print(  io, "    Δy = $dy m, bounds y = [$yl, $yu]")
+    @printf(io, "Grid %d × %d (%g m × %g m)", nx, ny, xu - xl, yu - yl)
+    @printf(io, "\n    Δx = %g m, bounds x = [%g, %g]", dx, xl, xu)
+    @printf(io, "\n    Δy = %g m, bounds y = [%g, %g]", dy, yl, yu)
 end
 
 # array utilities

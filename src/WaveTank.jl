@@ -1,6 +1,7 @@
 module WaveTank
 
 using JLD2: jldsave, jldopen
+using Printf
 
 include("core.jl")
 include("model.jl")
@@ -182,13 +183,24 @@ struct Results
 end
 
 function Base.show(io::IO, r::Results)
-    print(io, "WaveTank.Results \"$(r.filepath)\"")
+    (; filepath, dt, ts) = r
+    @printf(io, "WaveTank.Results \"%s\" (%g s)", filepath, dt * ts[end])
 end
 function Base.show(io::IO, ::MIME"text/plain", r::Results)
     (; filepath, dt, ts, output) = r
-    println(io, "WaveTank.Results \"$filepath\"")
-    println(io, "   $(length(ts)) snapshots, to t = $(ts[end]) ($(ts[end] * dt) s)")
-    print(  io, "   output = [$(join(output, ", "))]")
+    @printf(io, "WaveTank.Results \"%s\" (%g s)", filepath, dt * ts[end])
+    @printf(io, "\n   %s", format_ts(ts))
+    @printf(io, "\n   output = [%s]", join(output, ", "))
+end
+
+function format_ts(ts)
+    if 2 < length(ts)
+        "$(length(ts)) snapshots @ t = [0, $(ts[2]), ..., $(ts[end])]"
+    elseif length(ts) == 2
+        "2 snapshots @ t =[0, $(ts[end])]"
+    else
+        "1 snapshot @ t = 0"
+    end
 end
 
 # iterator interface to timeseries data
