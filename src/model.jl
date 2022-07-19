@@ -36,8 +36,7 @@ mutable struct Model
         @assert bcx in [:wall, :open]
         @assert bcy in [:wall, :open]
         grid = convert(Grid, grid)
-        nx, ny = grid.nx, grid.ny
-        xf, yf, xc, yc = grid.xf, grid.yf, grid.xc, grid.yc
+        (; nx, ny, xf, yf, xc, yc) = grid
         # essential
         h = isa(h, Number) ? fill(h, nx, ny) : [ h(x, y) for x in xc, y in yc ]
         if 0.0 < hsmooth
@@ -55,8 +54,7 @@ mutable struct Model
         h_x = diffx(interiory(hhalo))
         h_y = diffy(interiorx(hhalo))
         ws = -(eta .+ h) .* (diffx(u) ./ grid.dx .+ diffy(v) ./ grid.dy)
-        wb = -(averagex(u) .* diffx(hfx) ./ grid.dx) .+
-            -(averagey(v) .* diffy(hfy) ./ grid.dy)
+        wb = -(averagex(u) .* diffx(hfx) ./ grid.dx) .- (averagey(v) .* diffy(hfy) ./ grid.dy)
         # workspace
         coeff = let
             # pre-allocate diagonals
@@ -92,11 +90,14 @@ function Base.show(io::IO, m::Model)
     @printf(io, "WaveTank.Model @ t = %d (%.3g s)", t, t * dt)
 end
 function Base.show(io::IO, ::MIME"text/plain", m::Model)
-    (; t, dt, grid, bcx, bcy) = m
+    (; t, dt, grid, h, bcx, bcy) = m
+    hmin, hmax = extrema(h)
+    co = sqrt(g * hmax) / grid.dx * dt
     @printf(io, "WaveTank.Model @ t = %d (%.3g s)", t, t * dt)
     @printf(io, "\n   grid = %s", grid)
+    @printf(io, "\n   depth = [%.3g m, %.3g m]", hmin, hmax)
     @printf(io, "\n   boundaries = (x = %s, y = %s)", bcx, bcy)
-    @printf(io, "\n   Δt = %g, Δx = %g, Δy = %g (courant = %.3g)", dt, grid.dx, grid.dy, courant(m))
+    @printf(io, "\n   Δt = %g, Δx = %g, Δy = %g (courant = %.3g)", dt, grid.dx, grid.dy, co)
 end
 
 function courant(m)
@@ -105,8 +106,8 @@ function courant(m)
 end
 
 function step!(m::Model)::Model
-    dt, dx, dy = m.dt, m.grid.dx, m.grid.dy
-    nx, ny = m.grid.nx, m.grid.ny
+    (; dt, dx, dy) = m
+    (; nx, ny) = m.grid
 
     # centers
     etahalo = halo(m.eta)
@@ -365,7 +366,7 @@ function step!(m::Model)::Model
 
     # 4. boundary conditions part 1
     # half-step (0.5dt)
-    # d @ (t-1, x-1); u @ (t-1, x-1); no soliton artifacts, but unstable edges
+    # d @ (t-1, x-1); u @ (t-1, x-1); no wave artifacts, but unstable edges
     if m.bcx == :open
         # u (x normal)
         d = max.(m.eta .+ m.h, 0.0)
@@ -402,7 +403,7 @@ function step!(m::Model)::Model
 
     # 6. boundary conditions part 2
     # half-step (0.5dt)
-    # d @ (t, x); u @ (t-1, x); stable edges, but soliton artifacts
+    # d @ (t, x); u @ (t-1, x); stable edges, but wave artifacts
     if m.bcx == :open
         # u (x normal)
         d = max.(m.eta .+ m.h, 0.0)
