@@ -203,7 +203,7 @@ function format_ts(ts)
     end
 end
 
-# iterator interface to timeseries data
+# interface: iterator over timeseries data
 
 Base.length(r::Results) = length(r.ts)
 Base.eltype(::Type{Results}) = NamedTuple
@@ -221,5 +221,17 @@ function Base.iterate(r::Results, (file, i))
         nothing
     end
 end
+
+# interface: indexing by t
+
+function Base.getindex(r::Results, t::Int)
+    insorted(t, r.ts) || throw(BoundsError())
+    jldopen(r.filepath, "r") do file
+        (; r.grid, r.dt, r.h, t, ( key => file["output/$key/$t"] for key in r.output )...)
+    end
+end
+
+Base.firstindex(r::Results) = 0
+Base.lastindex(r::Results) = r.ts[end]
 
 end # module
