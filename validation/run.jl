@@ -24,11 +24,11 @@ animate(SolitaryWave.plot_results())
 
 SimpleBeach.plot_profiles(ah=0.0185)
 SimpleBeach.plot_conservation(ah=0.0185)
-animate(SimpleBeach.plot_results(ah=0.3))
+animate(SimpleBeach.plot_results(ah=0.0185))
 
 SimpleBeach.plot_profiles(ah=0.3)
 SimpleBeach.plot_conservation(ah=0.3)
-animate(SimpleBeach.plot_results(ah=0.0185))
+animate(SimpleBeach.plot_results(ah=0.3))
 
 ConicalIsland.plot_setup()
 ConicalIsland.plot_timeseries()

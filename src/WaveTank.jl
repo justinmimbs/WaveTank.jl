@@ -123,41 +123,6 @@ function run!(m, filepath; seconds, frequency, output,
     m
 end
 
-# TODO remove foldtime, maptime; use map/foldl(Result(filepath)) instead
-# TODO remove load; implement indexing for Result instead: Result(filepath)[t]
-
-# extract a named tuple from a jld2 file at time step t
-function load(filepath::AbstractString, t::Int)
-    jldopen(filepath, "r") do file
-        base = (grid=convert(Grid, file["grid"]), dt=file["dt"], h=file["h"], t=t)
-        output = Base.map(Symbol, keys(file["output"]))
-        (; base..., ( key => file["output/$key/$t"] for key in output )...)
-    end
-end
-# return all timesteps available in output
-function load(filepath::AbstractString)
-    jldopen(filepath, "r") do file
-        output = keys(file["output"])
-        sort!(parse.(Int, keys(file["output/$(output[1])"])))
-    end
-end
-
-function foldtime(f::Function, filepath; init)
-    jldopen(filepath, "r") do file
-        base = (grid=convert(Grid, file["grid"]), dt=file["dt"], h=file["h"])
-        output = Base.map(Symbol, keys(file["output"]))
-        ts = sort!(parse.(Int, keys(file["output/$(output[1])"])))
-        foldl(ts, init=init) do r, t
-            m = (; base..., t, ( key => file["output/$key/$t"] for key in output )...)
-            f(r, m)
-        end
-    end
-end
-
-function maptime(f::Function, filepath)
-    foldtime((a, m) -> push!(a, f(m)), filepath, init=[])
-end
-
 # Results
 
 # respresent results from a saved simulation run

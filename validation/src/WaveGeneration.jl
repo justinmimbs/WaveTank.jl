@@ -2,7 +2,7 @@ module WaveGeneration
 
 using GLMakie
 using Printf: @sprintf
-using WaveTank: g, Grid, Model, run!, Results, load
+using WaveTank: g, Grid, Model, run!, Results
 
 import ..to_path
 import ..sech2wave, ..particle_velocity
@@ -61,8 +61,8 @@ function runall(name="solitarywave")
 end
 
 function plot_comparison!(gp, name="solitarywave"; ah=0.1, gen=:initial, bcx=:wall)
-    filename = to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2")
-    (; dt, grid) = load(filename, 0)
+    results = Results(to_path("out/$(name)_$(ah)_$(gen)_$(bcx).jld2"))
+    (; dt, grid) = results
     wave = solitary_wave(ah)
 
     # figure
@@ -71,13 +71,12 @@ function plot_comparison!(gp, name="solitarywave"; ah=0.1, gen=:initial, bcx=:wa
     xlims!(ax, grid.xf[1], grid.xf[end])
     hidespines!(ax)
 
-    for t in load(filename)
+    for m in results
         # analytical solution
-        lx = t * dt * wave.c
+        lx = m.t * dt * wave.c
         lines!(ax, grid.xc, x -> wave.eta(x - lx); color=:gray)
 
         # model solution
-        m = load(filename, round(Int, t))
         lines!(ax, grid.xc, m.eta[:, end ÷ 2]; color=:dodgerblue)
     end
     # TODO add legend; add time labels

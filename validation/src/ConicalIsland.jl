@@ -3,7 +3,7 @@ module ConicalIsland
 using CSV
 using GLMakie
 using Printf: @sprintf
-using WaveTank: g, Grid, Model, run!, Results, load, foldtime
+using WaveTank: g, Grid, Model, run!, Results
 
 import ..to_path
 import ..sech2wave, ..particle_velocity, ..truncatedcone
@@ -106,7 +106,7 @@ function plot_timeseries(name="conicalisland")
 
     # load data (model)
     filepath = to_path("out/$name.jld2")
-    (; grid) = load(filepath, 0)
+    (; grid) = Results(filepath)
     sim = sample(filepath, gridindex.(Ref(grid), positions))
 
     # plot
@@ -135,9 +135,9 @@ function plot_runup(name="conicalisland")
     end
 
     # load data (model)
-    filepath = to_path("out/$name.jld2")
-    (; grid, h) = load(filepath, 0)
-    etamax = foldtime(filepath; init=zeros(grid.nx, grid.ny)) do eta, m
+    results = Results(to_path("out/$name.jld2"))
+    (; grid, h) = results
+    etamax = foldl(results; init=zeros(grid.nx, grid.ny)) do eta, m
         max.(eta, m.eta)
     end
 

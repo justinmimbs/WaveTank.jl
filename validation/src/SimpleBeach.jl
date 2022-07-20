@@ -3,7 +3,7 @@ module SimpleBeach
 using CSV
 using GLMakie
 using Printf: @sprintf
-using WaveTank: g, Grid, Model, run!, Results, load
+using WaveTank: g, Grid, Model, run!, Results
 
 import ..to_path
 import ..sech2wave, ..particle_velocity, ..piecewiselinear
@@ -53,13 +53,14 @@ end
 
 function plot_profiles(name="simplebeach"; ah=0.3)
     csv = CSV.File(to_path("in/simplebeach_profiles_$ah.csv"), types=Float64)
+    results = Results(to_path("out/$(name)_$ah.jld2"))
     ts = ah == 0.3 ? (15:5:30) : (30:10:70)
-    limits = ah == 0.3 ? (-20, 8, -0.05, 0.45) : (-20, 2, -0.03, 0.08)
+    limits = ah == 0.3 ? (-20, 8, -0.05, 0.45) : (-20, 3.5, -0.03, 0.08)
 
     fig = Figure()
     header!(fig[1, 1], "Simple beach, profiles")
     for (i, t) in enumerate(ts)
-        (; grid, h, eta) = load(to_path("out/$(name)_$ah.jld2"), 32 * t - 20) # s = 0.32 * t - 0.2
+        (; grid, h, eta) = results[32 * t - 20] # s = 0.32 * t - 0.2
         j = length(grid.yc) ÷ 2
         ax = Axis(fig[1 + i, 1]; title="t = $t", limits)
         scatter!(ax, -csv["x_t$t"], csv["eta_t$t"]; color=:black, markersize=5, label="laboratory")
