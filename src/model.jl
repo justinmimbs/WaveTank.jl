@@ -106,8 +106,8 @@ function courant(m)
 end
 
 function step!(m::Model)::Model
-    (; dt, dx, dy) = m
-    (; nx, ny) = m.grid
+    (; dt) = m
+    (; nx, ny, dx, dy) = m.grid
 
     # centers
     etahalo = halo(m.eta)

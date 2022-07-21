@@ -3,7 +3,8 @@ module SolitaryWave
 
 using GLMakie
 using Printf: @sprintf
-using WaveTank: g, Grid, Model, run!, Results
+using WaveTank
+using WaveTank: g
 
 import ..to_path
 import ..plot_scene, ..plot_conservation!, ..header!

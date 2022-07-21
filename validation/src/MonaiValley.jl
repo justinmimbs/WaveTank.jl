@@ -3,7 +3,7 @@ module MonaiValley
 using CSV
 using Interpolations: interpolate, scale, BSpline, Cubic, Flat, OnCell
 using GLMakie
-using WaveTank: g, Grid, Model, run!, Results
+using WaveTank
 
 import ..to_path
 import ..gridindex, ..sample

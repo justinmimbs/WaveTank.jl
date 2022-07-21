@@ -2,7 +2,8 @@ module WaveGeneration
 
 using GLMakie
 using Printf: @sprintf
-using WaveTank: g, Grid, Model, run!, Results
+using WaveTank
+using WaveTank: g
 
 import ..to_path
 import ..sech2wave, ..particle_velocity
