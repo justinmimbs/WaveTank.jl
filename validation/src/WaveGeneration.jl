@@ -15,7 +15,7 @@ function solitary_wave(ah; h=inv(ah), lx0=0.0)
     l = 8.3 / k
     c = sqrt(g * (h + a))
     eta = sech2wave(; a, x0=lx0 * l, k)
-    u = particle_velocity(eta, a, h)
+    u = particle_velocity(eta, h, a)
     (; a, h, k, l, c, eta, u)
 end
 

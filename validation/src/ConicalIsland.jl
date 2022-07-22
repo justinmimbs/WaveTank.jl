@@ -15,7 +15,7 @@ function model(res=1)
     a = 0.181 * h
     k = sqrt(3 * a / (4 * h^3))
     wave = sech2wave(; a, x0=7, k)
-    speed = particle_velocity(wave, a, h)
+    speed = particle_velocity(wave, h, a)
     basin = truncatedcone(13, 15, 3.6, 1.1, 0.625)
     Model(
         grid=Grid(0:25, 0:30, (500 ÷ res, 600 ÷ res)),

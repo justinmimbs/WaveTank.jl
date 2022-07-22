@@ -3,23 +3,19 @@ using WaveTank: g
 
 function sech2wave(; a=1.0, x0=0.0, k=1)
     # a : amplitude, k : wavenumber
-    function f(x)
-        a * sech(k * (x - x0))^2
-    end
+    f(x) = a * sech(k * (x - x0))^2
 end
 
-function particle_velocity(eta::Function, a, depth)
-    c = sqrt(g * (a + depth))
-    function f(x)
-        e = eta(x)
-        c * e / (e + depth)
-    end
+# particle speed / phase speed = amplitude / depth
+function particle_velocity(eta::Function, h, a)
+    c = sqrt(g * (h + a))
+    u(x) = let e = eta(x); c * e / (h + e) end
 end
 
 function piecewiselinear(xs, ys, default=0.0)
     function f(x)
-        if xs[1] <= x && x < xs[end]
-            i = findfirst(x0 -> x < x0, xs) - 1
+        if xs[1] <= x < xs[end]
+            i = findfirst(>(x), xs) - 1
             x0, x1 = xs[i], xs[i + 1]
             y0, y1 = ys[i], ys[i + 1]
             alpha = (x - x0) / (x1 - x0)

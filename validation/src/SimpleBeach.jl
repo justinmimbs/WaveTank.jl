@@ -26,7 +26,7 @@ function model(ah=0.3) # ah = amplitude / depth ratio
     xmax = xmin + nx * dx
     #
     wave = sech2wave(a=a, x0=bmin - 0.5 * l, k=k)
-    speed = particle_velocity(wave, a, h)
+    speed = particle_velocity(wave, h, a)
     bathymetry = piecewiselinear([bmin, bmax, bmax + l], h .- [0, bh, bh], h)
     Model(
         grid=Grid((xmin, xmax), (0, 80dx), (nx, 80)),

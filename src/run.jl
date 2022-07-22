@@ -38,9 +38,9 @@ function Base.convert(::Type{GridSerialized}, grid::Grid)
     )
 end
 
-function velocity_from_eta(eta, h)
-    # particle speed / phase speed = amplitude / depth
-    [ a / (h + a) * sqrt(g * (h + a)) for a in eta ]
+# particle speed / phase speed = amplitude / depth
+function particle_velocity(eta::AbstractVector, h)
+    [ sqrt(g * (h + e)) * e / (h + e) for e in eta ]
 end
 
 function run!(m, filepath; seconds, frequency, output,
@@ -49,7 +49,7 @@ function run!(m, filepath; seconds, frequency, output,
     @assert frequency <= 1.0 / m.dt
     # wavemaker from waveinput if needed
     if isempty(wavemaker) && !isempty(waveinput)
-        wavemaker = velocity_from_eta(waveinput, maximum(m.h[1, :]))
+        wavemaker = particle_velocity(waveinput, maximum(m.h[1, :]))
     end
     # split output fields into snapshots and aggregates
     snapshots = [] # computed at the end of each output interval
