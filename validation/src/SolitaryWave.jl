@@ -7,7 +7,6 @@ using WaveTank
 using WaveTank: g
 
 import ..to_path
-import ..solitary_wave
 import ..plot_scene, ..plot_conservation!, ..header!
 
 function model(wave, nx)

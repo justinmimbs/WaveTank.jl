@@ -6,7 +6,6 @@ using Printf: @sprintf
 using WaveTank
 
 import ..to_path
-import ..solitary_wave, ..planar_beach
 import ..plot_scene, ..plot_conservation!, ..header!
 
 function model(ah=0.3) # ah = amplitude / depth ratio

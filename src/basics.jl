@@ -1,5 +1,4 @@
 using LinearAlgebra: norm
-using WaveTank: g
 
 # waves
 
@@ -17,9 +16,12 @@ function solitary_wave(a; h=1.0, x0=0.0)
 end
 
 # particle speed / phase speed = amplitude / depth
-function particle_velocity(eta::Function, h, a)
+function particle_velocity(eta::Function, h, a)::Function
     c = sqrt(g * (h + a))
     u(x) = let e = eta(x); c * e / (h + e) end
+end
+function particle_velocity(eta, h)::Vector
+    [ sqrt(g * (h + e)) * e / (h + e) for e in eta ]
 end
 
 

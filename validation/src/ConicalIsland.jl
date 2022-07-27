@@ -6,7 +6,6 @@ using Printf: @sprintf
 using WaveTank
 
 import ..to_path
-import ..solitary_wave, ..truncated_cone
 import ..gridindex, ..sample
 import ..plot_scene, ..header!
 

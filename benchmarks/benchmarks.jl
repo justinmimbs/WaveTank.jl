@@ -3,9 +3,7 @@ Pkg.activate(Base.current_project(@__DIR__))
 
 using BenchmarkTools
 using ProfileView
-using WaveTank: g, Grid, Model, step!
-
-include("../extra/basics.jl")
+using WaveTank
 
 function model()
     h = 1.0

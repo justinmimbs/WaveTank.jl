@@ -38,11 +38,6 @@ function Base.convert(::Type{GridSerialized}, grid::Grid)
     )
 end
 
-# particle speed / phase speed = amplitude / depth
-function particle_velocity(eta::AbstractVector, h)
-    [ sqrt(g * (h + e)) * e / (h + e) for e in eta ]
-end
-
 function run!(m, filepath; seconds, frequency, output,
         wavemaker=[], waveinput=[],
     )
