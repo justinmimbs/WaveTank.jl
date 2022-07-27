@@ -9,8 +9,8 @@ using Validation: animate
 
 function run()
     SolitaryWave.run()
-    SimpleBeach.run(0.0185)
-    SimpleBeach.run(0.3)
+    SimpleBeach.run(ah=0.0185)
+    SimpleBeach.run(ah=0.3)
     ConicalIsland.run()
     MonaiValley.run()
 end

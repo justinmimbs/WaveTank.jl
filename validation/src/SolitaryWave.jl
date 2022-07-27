@@ -7,16 +7,8 @@ using WaveTank
 using WaveTank: g
 
 import ..to_path
+import ..solitary_wave
 import ..plot_scene, ..plot_conservation!, ..header!
-
-function solitarywave(a=0.1; h=1.0)
-    c = sqrt(g * (h + a))
-    k = sqrt(3a / 4h) / h
-    l = 2pi / k
-    eta(x) = a * sech(k * x)^2
-    u(x) = let e = eta(x); c * e / (h + e) end
-    (; a, h, c, k, l, eta, u)
-end
 
 function model(wave, nx)
     Model(;
@@ -36,7 +28,7 @@ function run(name="solitarywave"; ah=0.1, nx=100)
     if isfile(outfile)
         @info "file exists: $(outfile)"
     else
-        wave = solitarywave(ah)
+        wave = solitary_wave(ah)
         period = wave.l / wave.c
         m = model(wave, nx)
         run!(m, outfile; seconds=2period, frequency=30 / period, output=(; eta=:eta))
@@ -46,7 +38,7 @@ end
 
 function plot_comparison(name="solitarywave"; ah=0.1)
     filename = to_path("out/$(name)_$(ah).jld2")
-    wave = solitarywave(ah)
+    wave = solitary_wave(ah)
     x = range(-1.5wave.l, 3.5wave.l; length=500)
     fig = Figure(; resolution=(1100, 600))
     header!(fig[1, 1], "Solitary wave")

@@ -6,24 +6,22 @@ using Printf: @sprintf
 using WaveTank
 
 import ..to_path
-import ..sech2wave, ..particle_velocity, ..truncatedcone
+import ..solitary_wave, ..truncated_cone
 import ..gridindex, ..sample
 import ..plot_scene, ..header!
 
 function model(res=1)
     h = 0.32
     a = 0.181 * h
-    k = sqrt(3 * a / (4 * h^3))
-    wave = sech2wave(; a, x0=7, k)
-    speed = particle_velocity(wave, h, a)
-    basin = truncatedcone(13, 15, 3.6, 1.1, 0.625)
+    wave = solitary_wave(a; h, x0=7)
+    basin = truncated_cone(13, 15, 3.6, 1.1, 0.625)
     Model(
         grid=Grid(0:25, 0:30, (500 ÷ res, 600 ÷ res)),
         h=(x, y) -> h - basin(x, y),
         bcx=:open,
         bcy=:open,
-        eta=(x, y) -> wave(x),
-        u=(x, y) -> speed(x),
+        eta=(x, y) -> wave.eta(x),
+        u=(x, y) -> wave.u(x),
         dt=0.01 * res,
         n=0.016,
     )

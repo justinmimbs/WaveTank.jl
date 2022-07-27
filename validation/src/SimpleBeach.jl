@@ -6,7 +6,7 @@ using Printf: @sprintf
 using WaveTank
 
 import ..to_path
-import ..sech2wave, ..particle_velocity, ..piecewiselinear
+import ..solitary_wave, ..planar_beach
 import ..plot_scene, ..plot_conservation!, ..header!
 
 function model(ah=0.3) # ah = amplitude / depth ratio
@@ -14,27 +14,23 @@ function model(ah=0.3) # ah = amplitude / depth ratio
     a = ah * h
     k = sqrt(3 * a / (4 * h^3))
     l = (2.0 / k) * acosh(sqrt(0.05^-1))
-    beta = 1 / 19.85 # beach slope
-    # beach (waterline at x = 0)
-    bmin = -h / beta
-    bh = 2 * h # beach height
-    bmax = bmin + (bh / beta)
-    # x domain
-    xmin = bmin - 1.5 * l
-    dx = h / 8
-    nx = ceil(Int, (bmax - xmin) / dx)
-    xmax = xmin + nx * dx
-    #
-    wave = sech2wave(a=a, x0=bmin - 0.5 * l, k=k)
-    speed = particle_velocity(wave, h, a)
-    bathymetry = piecewiselinear([bmin, bmax, bmax + l], h .- [0, bh, bh], h)
-    Model(
-        grid=Grid((xmin, xmax), (0, 80dx), (nx, 80)),
+    slope = 1 / 19.85
+    bathymetry = planar_beach(h, slope)
+    wave = solitary_wave(a; h, x0=-(0.5l + h / slope))
+    grid = let
+        dx = h / 8
+        xmin = -(1.5l + h / slope)
+        nx = ceil(Int, (1.5l + 2h / slope) / dx)
+        xmax = xmin + nx * dx
+        Grid((xmin, xmax), (0, 80dx), (nx, 80))
+    end
+    Model(;
+        grid,
         h=(x, y) -> bathymetry(x),
         bcx=:wall,
         bcy=:wall,
-        eta=(x, y) -> wave(x),
-        u=(x, y) -> speed(x),
+        eta=(x, y) -> wave.eta(x),
+        u=(x, y) -> wave.u(x),
         n=0.01,
         dt=0.01,
     )
