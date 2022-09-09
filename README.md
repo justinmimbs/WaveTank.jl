@@ -2,11 +2,13 @@
 
 A depth-averaged, nonhydrostatic fluid model capable of simulating water waves as they run up on shore.
 
+For a brief introduction, see this [JuliaCon 2022 talk](https://www.youtube.com/watch?v=QM-32FzMOcQ&list=PLP8iPy9hna6TRg6qJaBLJ-FRMi9Cp7gSX).
+
 ## Example
 
-This example models a solitary wave running up on a planar beach. Output from the simulation is saved to a file, and the results are animated using Makie with Observables.
+Below is a complete example that models a solitary wave running up on a planar beach. Output from the simulation is saved to a file, and the results are animated using Makie with Observables.
 
-```jl
+```julia
 using WaveTank: Grid, Model, Results, run!, solitary_wave, planar_beach
 using GLMakie
 using Printf
