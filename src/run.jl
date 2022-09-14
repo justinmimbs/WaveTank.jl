@@ -1,8 +1,10 @@
 using JLD2: jldsave, jldopen
 
-# step! multiple iterations, optionally with wavemaker/waveinput
-# 	wavemaker = velocity timeseries to apply to lower x boundary
-# 	waveinput = eta timeseries to apply to lower x boundary
+"""
+    step!(model[, iterations])
+
+Step a model forward in time.
+"""
 function step!(m, n::Int; wavemaker=[], waveinput=[])
     scale = m.bcx == :open ? 2.0 : 1.0
     for _ in 1:n
@@ -38,6 +40,18 @@ function Base.convert(::Type{GridSerialized}, grid::Grid)
     )
 end
 
+"""
+    run!(model, filepath; seconds, frequency, output, wavemaker=[], waveinput=[])
+
+Run a model forward in time while writing output to a file.
+
+## Keyword arguments
+- `seconds`: duration to run the simulation for
+- `frequency`: number of times per simulation-second write output
+- `output`: key-value pairs indicating the name of the output field and how to compute it
+- `wavemaker=[]`: timeseries of particle velocity to apply to the lower x boundary
+- `waveinput=[]`: timeseries of surface elevation to apply to the lower x boundary
+"""
 function run!(m, filepath; seconds, frequency, output,
         wavemaker=[], waveinput=[],
     )
@@ -113,16 +127,32 @@ end
 
 # Results
 
-# respresent results from a saved simulation run
+"""
+Represent the output from a simulation run.
 
+Static fields from the model (`grid`, `dt`, `h`) are available directly.
+
+## Fields
+- `filepath::String`
+- `grid::Grid`
+- `dt::Float64`
+- `h::Matrix{Float64}`
+- `ts::Vector{Int}`: timestep numbers for all output times
+- `output::Vector{Symbol}`: keys of the fields available at each output time
+"""
 struct Results
-    filepath::AbstractString
+    filepath::String
     grid::Grid
     dt::Float64
     h::Matrix{Float64}
     output::Vector{Symbol}
     ts::Vector{Int}
     #
+    @doc """
+        Results(filepath)
+
+    Load the results from a file.
+    """
     function Results(filepath)
         jldopen(filepath, "r") do file
             grid = convert(Grid, file["grid"])

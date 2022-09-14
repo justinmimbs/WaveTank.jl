@@ -3,6 +3,21 @@ using SparseArrays: SparseMatrixCSC, spdiagm, nonzeros
 using ILUZero: ILU0Precon, ilu0, ilu0!
 using ConjugateGradients: BiCGStabData, bicgstab!
 
+model_doc = """
+    Model(; grid, h, u, v, eta, bcx, bcy, n, dt, courant)
+
+## Arguments
+- `grid::Grid`: computational grid for the model
+- `h=1.0`: either a number or a function to define the still-water level
+- `u=nothing`: a function to initialize the particle velocity in the x direction
+- `v=nothing`: a function to initialize the particle velocity in the y direction
+- `eta=nothing`: a function to initialize the surface elevation
+- `bcx=:wall`: boundary conditions at the x boundaries (one of `[:wall, :open]`)
+- `bcy=:wall`: boundary conditions at the y boundaries (one of `[:wall, :open]`)
+- `n=0.0`: Manning friction coefficient for the bottom
+- `dt=nothing`: timestep duration; automatically computed from `courant` if not provided
+- `courant=0.2`: Courant number to compute the timestep duration with
+"""
 mutable struct Model
     # static
     grid::Grid
@@ -29,6 +44,7 @@ mutable struct Model
     solver::BiCGStabData{Float64}
     q::Matrix{Float64} # centers
     #
+    @doc model_doc
     function Model(; grid, h=1.0, u=nothing, v=nothing, eta=nothing,
         bcx=:wall, bcy=:wall, n=0.0, dt=nothing, courant=0.2,
         hsmooth=0.0,

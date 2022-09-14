@@ -97,7 +97,7 @@ function plot_comparisons(name="solitarywave";
 )
     args = [ (; ah, gen, bcx) for ah in ah for gen in gen for bcx in bcx ]
     fig = Figure(resolution=(1000, 240 * length(args)))
-    for i in 1:length(args)
+    for i in eachindex(args)
         plot_comparison!(fig[i, 1], name; args[i]...)
     end
     fig

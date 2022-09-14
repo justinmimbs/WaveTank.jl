@@ -2,6 +2,18 @@ using OffsetArrays: OffsetArrays, OffsetArray
 
 const g = 9.80665 # m s^-2
 
+grid_doc = """
+    Grid(xbounds, ybounds, resolution)
+
+Define a 2D computational grid by its domain bounds and resolution in each dimension.
+
+```jldoctest
+julia> Grid((-15.0, 10.0), (-5.0, 5.0), (500, 200))
+Grid 500 × 200 (25 m × 10 m)
+    Δx = 0.05 m, bounds x = [-15, 10]
+    Δy = 0.05 m, bounds y = [-5, 5]
+```
+"""
 struct Grid
     nx::Int # number of cells
     ny::Int # number of cells
@@ -11,12 +23,13 @@ struct Grid
     xf::Vector{Float64} # face values (length = nx + 1)
     yc::Vector{Float64} # center values (length = ny)
     yf::Vector{Float64} # face values (length = ny + 1)
+    @doc grid_doc
     function Grid(x, y, (nx, ny))
         lx, ly = x[end] - x[1], y[end] - y[1]
         dx, dy = lx / nx, ly / ny
-        xc = range(x[1], x[end] - dx, length=nx) .+ dx / 2
+        xc = range(x[1], x[end] - dx, length=nx) .+ 0.5dx
         xf = range(x[1], x[end], length=nx + 1)
-        yc = range(y[1], y[end] - dy, length=ny) .+ dy / 2
+        yc = range(y[1], y[end] - dy, length=ny) .+ 0.5dy
         yf = range(y[1], y[end], length=ny + 1)
         new(
             nx, ny, dx, dy,
